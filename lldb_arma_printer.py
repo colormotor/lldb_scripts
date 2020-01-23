@@ -30,13 +30,20 @@ class PrintArmadillo:
             return
         
         # Try to evaluate input, this may be also for instance an element of a a std::vector
-        sbval = frame.EvaluateExpression(command)
-        if sbval is None:
+        try:
+            sbval = frame.EvaluateExpression(command)
+        except:
             result.SetError("Could not evaluate %s in frame"%command)
-        
+            return
+
+        # Need to figure out how to detect errors in EvaluateExpression
+        if sbval.GetByteSize()==0:
+            result.SetError("Could not evaluate %s in frame"%command)
+            return
+
         get = lambda i: sbval.GetValueForExpressionPath(".mem["+str(i)+"]").GetValue()
 
-        if try:
+        try: 
             n_rows = sbval.GetValueForExpressionPath(".n_rows").GetValueAsSigned()
             n_cols = sbval.GetValueForExpressionPath(".n_cols").GetValueAsSigned()
 
